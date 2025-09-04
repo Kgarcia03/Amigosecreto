@@ -11,11 +11,18 @@
 </head>
 <body>
   <h1>🎁 Sorteo Amigo Secreto</h1>
-  <p>Escribe tu nombre exactamente como está en la lista y haz clic para saber quién te tocó.</p>
-  
-  <input type="text" id="usuario" placeholder="Escribe tu nombre">
-  <button onclick="mostrarNombre()">Ver mi Amigo Secreto</button>
-  <div id="resultado"></div>
+
+  <div id="login">
+    <p>Escribe tu nombre exactamente como está en la lista para ingresar:</p>
+    <input type="text" id="usuario" placeholder="Escribe tu nombre">
+    <button onclick="ingresar()">Ingresar</button>
+  </div>
+
+  <div id="juego" style="display:none;">
+    <p>Hola <span id="nombreJugador"></span>, haz clic para ver a tu Amigo Secreto:</p>
+    <button id="btnVer" onclick="mostrarNombre()">Ver mi Amigo Secreto</button>
+    <div id="resultado"></div>
+  </div>
 
   <script>
     // Lista de participantes
@@ -25,43 +32,64 @@
       "Isabela", "Melva", "Elkin", "Santi", "Rey", "Ines", "Daniela", "Edinson", 
       "Gerley", "John", "Samuel", "Matias"
     ];
-    
-    let asignaciones = {};
 
-    // Función que genera un sorteo válido (sin repetidos y sin auto-asignación)
+    let asignaciones = {};
+    let usuarioActual = null;
+
+    // Genera un sorteo válido (sin repetidos y sin auto-asignación)
     function generarSorteo() {
       let nombres = [...participantes];
       let resultado = {};
 
       for (let persona of participantes) {
-        // Filtrar para que no se asigne a sí mismo
         let posibles = nombres.filter(n => n !== persona);
         if (posibles.length === 0) {
-          // Si ya no quedan opciones válidas, reiniciar el sorteo
-          return generarSorteo();
+          return generarSorteo(); // reinicia si hay problema
         }
         let elegido = posibles[Math.floor(Math.random() * posibles.length)];
         resultado[persona] = elegido;
-        // Eliminar elegido de la lista de disponibles
         nombres.splice(nombres.indexOf(elegido), 1);
       }
       return resultado;
     }
 
-    // Crear el sorteo al cargar la página
+    // Crear sorteo al inicio
     asignaciones = generarSorteo();
 
-    function mostrarNombre() {
+    // Validar ingreso
+    function ingresar() {
       let usuario = document.getElementById("usuario").value.trim();
       if (!usuario || !participantes.includes(usuario)) {
-        document.getElementById("resultado").innerText = "⚠️ Ingresa un nombre válido de la lista.";
+        alert("⚠️ Ingresa un nombre válido de la lista.");
         return;
       }
-      let amigo = asignaciones[usuario];
-      document.getElementById("resultado").innerText = "👉 " + usuario + ", te tocó: " + amigo;
+
+      // Verificar si ya consultó antes (localStorage)
+      if (localStorage.getItem("jugador_" + usuario)) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("juego").style.display = "block";
+        document.getElementById("nombreJugador").innerText = usuario;
+        document.getElementById("resultado").innerText = "⚠️ Ya consultaste tu Amigo Secreto.";
+        document.getElementById("btnVer").style.display = "none";
+        return;
+      }
+
+      usuarioActual = usuario;
+      document.getElementById("nombreJugador").innerText = usuario;
+      document.getElementById("login").style.display = "none";
+      document.getElementById("juego").style.display = "block";
+    }
+
+    // Mostrar el amigo secreto del jugador
+    function mostrarNombre() {
+      let amigo = asignaciones[usuarioActual];
+      document.getElementById("resultado").innerText = "👉 " + usuarioActual + ", te tocó: " + amigo;
+      localStorage.setItem("jugador_" + usuarioActual, amigo); // guardar en navegador
+      document.getElementById("btnVer").style.display = "none"; // desactivar botón
     }
   </script>
 </body>
 </html>
+
 
 
