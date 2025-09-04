@@ -64,20 +64,17 @@
         return;
       }
 
-      // Verificar si ya consultó antes (localStorage)
-      if (localStorage.getItem("jugador_" + usuario)) {
-        document.getElementById("login").style.display = "none";
-        document.getElementById("juego").style.display = "block";
-        document.getElementById("nombreJugador").innerText = usuario;
-        document.getElementById("resultado").innerText = "⚠️ Ya consultaste tu Amigo Secreto.";
-        document.getElementById("btnVer").style.display = "none";
-        return;
-      }
-
       usuarioActual = usuario;
       document.getElementById("nombreJugador").innerText = usuario;
       document.getElementById("login").style.display = "none";
       document.getElementById("juego").style.display = "block";
+
+      // Revisar si ya había visto su amigo secreto
+      let guardado = localStorage.getItem("jugador_" + usuario);
+      if (guardado) {
+        document.getElementById("resultado").innerText = "👉 " + usuario + ", ya consultaste. Tu Amigo Secreto es: " + guardado;
+        document.getElementById("btnVer").style.display = "none";
+      }
     }
 
     // Mostrar el amigo secreto del jugador
@@ -90,6 +87,7 @@
   </script>
 </body>
 </html>
+
 
 
 
