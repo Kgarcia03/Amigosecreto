@@ -5,42 +5,63 @@
   <title>Amigo Secreto</title>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-    button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-top: 20px; }
+    input, button { padding: 10px; font-size: 16px; margin: 10px; }
     #resultado { font-size: 22px; margin-top: 30px; font-weight: bold; }
   </style>
 </head>
 <body>
   <h1>🎁 Sorteo Amigo Secreto</h1>
-  <p>Haz clic en el botón para saber quién te tocó.</p>
+  <p>Escribe tu nombre exactamente como está en la lista y haz clic para saber quién te tocó.</p>
+  
+  <input type="text" id="usuario" placeholder="Escribe tu nombre">
   <button onclick="mostrarNombre()">Ver mi Amigo Secreto</button>
   <div id="resultado"></div>
 
   <script>
-    // Lista de participantes (cambia estos nombres)
-    let participantes = ["Kelly", "Isabel", "Camilo", "Constanza", "Joha", "Jeico", "Susi", "Amalia", "Daniel", "Daniela novia Daniel", "Susana Hija novia Daniel", "Lucy", "Andres", "Isabela", "Melva", "Elkin", "Santi", "Rey", "Ines", "Daniela", "Edinson", "Gerley", "John", "Samuel", "Matias"];
-    let asignados = [];
+    // Lista de participantes
+    let participantes = [
+      "Kelly", "Isabel", "Camilo", "Constanza", "Joha", "Jeico", "Susi", "Amalia", 
+      "Daniel", "Daniela novia Daniel", "Susana Hija novia Daniel", "Lucy", "Andres", 
+      "Isabela", "Melva", "Elkin", "Santi", "Rey", "Ines", "Daniela", "Edinson", 
+      "Gerley", "John", "Samuel", "Matias"
+    ];
+    
+    let asignaciones = {};
 
-    // Hacer el sorteo al inicio
-    function sortear() {
-      let copia = [...participantes];
-      while (copia.length) {
-        let i = Math.floor(Math.random() * copia.length);
-        asignados.push(copia.splice(i, 1)[0]);
+    // Función que genera un sorteo válido (sin repetidos y sin auto-asignación)
+    function generarSorteo() {
+      let nombres = [...participantes];
+      let resultado = {};
+
+      for (let persona of participantes) {
+        // Filtrar para que no se asigne a sí mismo
+        let posibles = nombres.filter(n => n !== persona);
+        if (posibles.length === 0) {
+          // Si ya no quedan opciones válidas, reiniciar el sorteo
+          return generarSorteo();
+        }
+        let elegido = posibles[Math.floor(Math.random() * posibles.length)];
+        resultado[persona] = elegido;
+        // Eliminar elegido de la lista de disponibles
+        nombres.splice(nombres.indexOf(elegido), 1);
       }
+      return resultado;
     }
 
-    sortear();
+    // Crear el sorteo al cargar la página
+    asignaciones = generarSorteo();
 
     function mostrarNombre() {
-      if (asignados.length === 0) {
-        document.getElementById("resultado").innerText = "Ya no hay más nombres.";
+      let usuario = document.getElementById("usuario").value.trim();
+      if (!usuario || !participantes.includes(usuario)) {
+        document.getElementById("resultado").innerText = "⚠️ Ingresa un nombre válido de la lista.";
         return;
       }
-      let nombre = asignados.pop();
-      document.getElementById("resultado").innerText = "👉 Te tocó: " + nombre;
-      document.querySelector("button").disabled = true;
+      let amigo = asignaciones[usuario];
+      document.getElementById("resultado").innerText = "👉 " + usuario + ", te tocó: " + amigo;
     }
   </script>
 </body>
 </html>
+
 
